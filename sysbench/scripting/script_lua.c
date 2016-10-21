@@ -139,6 +139,7 @@ static int sb_lua_close_state(lua_State *);
 static int sb_lua_db_connect(lua_State *);
 static int sb_lua_db_disconnect(lua_State *);
 static int sb_lua_db_query(lua_State *);
+static int sb_lua_db_ping(lua_State *);
 static int sb_lua_db_bulk_insert_init(lua_State *);
 static int sb_lua_db_bulk_insert_next(lua_State *);
 static int sb_lua_db_bulk_insert_done(lua_State *);
@@ -455,6 +456,9 @@ lua_State *sb_lua_new_state(const char *scriptname, int thread_id)
 
   lua_pushcfunction(state, sb_lua_db_query);
   lua_setglobal(state, "db_query");
+
+  lua_pushcfunction(state, sb_lua_db_ping);
+  lua_setglobal(state, "db_ping");
   
   lua_pushcfunction(state, sb_lua_db_bulk_insert_init);
   lua_setglobal(state, "db_bulk_insert_init");
@@ -661,6 +665,17 @@ int sb_lua_db_query(lua_State *L)
   db_store_results(rs);
   db_free_results(rs);
   
+  return 0;
+}
+
+int sb_lua_db_ping(lua_State *L)
+{
+  sb_lua_ctxt_t *ctxt;
+
+  ctxt = sb_lua_get_context(L);
+
+  if (ctxt->con)
+    db_ping(ctxt->con);
   return 0;
 }
 

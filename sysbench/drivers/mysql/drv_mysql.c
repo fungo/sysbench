@@ -182,6 +182,7 @@ static int mysql_drv_free_results(db_result_set_t *);
 static int mysql_drv_close(db_stmt_t *);
 static int mysql_drv_store_results(db_result_set_t *);
 static int mysql_drv_done(void);
+int mysql_drv_ping(db_conn_t *);
 
 /* MySQL driver definition */
 
@@ -206,6 +207,7 @@ static db_driver_t mysql_driver =
     mysql_drv_close,
     mysql_drv_query,
     mysql_drv_store_results,
+    mysql_drv_ping,
     mysql_drv_done
   },
   {0,0}
@@ -852,6 +854,23 @@ int mysql_drv_query(db_conn_t *sb_conn, const char *query,
   return SB_DB_ERROR_NONE;
 }
 
+int mysql_drv_ping(db_conn_t *sb_conn)
+{
+  db_mysql_conn_t *db_mysql_con;
+  MYSQL *con;
+  unsigned int rc;
+
+  if (args.dry_run)
+    return 0;
+
+  db_mysql_con = (db_mysql_conn_t *)sb_conn->ptr;
+  con = db_mysql_con->mysql;
+  rc = (unsigned int)mysql_ping(con);
+  if (rc)
+    return check_error(sb_conn, "mysql_drv_ping()", NULL);
+
+  return SB_DB_ERROR_NONE;
+}
 
 /* Fetch row from result set of a prepared statement */
 

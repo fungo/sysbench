@@ -492,6 +492,24 @@ db_result_set_t *db_query(db_conn_t *con, const char *query)
   return rs;
 }
 
+int db_ping(db_conn_t *con)
+{
+  db_driver_t *drv;
+
+  drv = con->driver;
+  if (drv == NULL)
+    return 1;
+
+  con->db_errno = drv->ops.ping(con);
+
+  if (con->db_errno != SB_DB_ERROR_NONE)
+  {
+    thread_stats[con->thread_id].errors++;
+  }
+
+  return 0;
+}
+
 
 /* Free result set */
 
