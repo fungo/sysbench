@@ -157,6 +157,7 @@ static int sb_lua_rand_gaussian(lua_State *);
 static int sb_lua_rand_special(lua_State *);
 static int sb_lua_rnd(lua_State *);
 static int sb_lua_rand_str(lua_State *);
+static int sb_lua_msleep(lua_State *);
 
 /* Get a per-state interpreter context */
 static sb_lua_ctxt_t *sb_lua_get_context(lua_State *);
@@ -486,6 +487,9 @@ lua_State *sb_lua_new_state(const char *scriptname, int thread_id)
 
   lua_pushcfunction(state, sb_lua_db_store_results);
   lua_setglobal(state, "db_store_results");
+
+  lua_pushcfunction(state, sb_lua_msleep);
+  lua_setglobal(state, "msleep");
 
   lua_pushcfunction(state, sb_lua_db_free_results);
   lua_setglobal(state, "db_free_results");
@@ -1154,6 +1158,13 @@ int sb_lua_rand_str(lua_State *L)
   free(buf);
 
   return 1;
+}
+
+int sb_lua_msleep(lua_State *L)
+{
+  int num = luaL_checknumber(L, 1);
+  usleep(num * 1000);
+  return 0;
 }
 
 /* Get a per-state interpreter context */
