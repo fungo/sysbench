@@ -39,6 +39,7 @@
 #include "sb_list.h"
 #include "sb_logger.h"
 #include "sb_percentile.h"
+#include <time.h>
 
 #define TEXT_BUFFER_SIZE 4096
 #define ERROR_BUFFER_SIZE 256
@@ -304,11 +305,19 @@ void log_timestamp(log_msg_priority_t priority, const sb_timer_t *timer,
   char           buf[TEXT_BUFFER_SIZE];
   va_list        ap;
   int            n, clen, maxlen;
+  char           time_buf[26];
+  time_t         timer1;
+  struct tm*     tm_info;
 
   maxlen = TEXT_BUFFER_SIZE;
   clen = 0;
 
-  n = snprintf(buf, maxlen, "[%4.0fs] ", NS2SEC(timer->elapsed));
+  memset(time_buf, 0, sizeof(time_buf));
+  time(&timer1);
+  tm_info = localtime(&timer1);
+  strftime(time_buf, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
+  n = snprintf(buf, maxlen, "[%4.0fs] [%s] ", NS2SEC(timer->elapsed), time_buf);
   clen += n;
   maxlen -= n;
 
